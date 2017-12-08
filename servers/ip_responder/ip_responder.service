@@ -1,0 +1,10 @@
+# /etc/systemd/system/ip_responder.service
+[Unit]
+Description=IP Responder service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env python3 -u /path/to/ip_responder/server.py
+StandardOutput=syslog
+StandardError=syslog

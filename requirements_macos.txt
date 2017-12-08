@@ -1,0 +1,12 @@
+colorlog
+ipaddress
+mock
+netaddr
+netifaces
+parameterized
+paramiko
+psutil
+pylint
+selenium
+
+https://pypi.python.org/packages/c8/20/3f767baf52ae14b5fa0c6a531651ecb9dbfdc5f75a3dc8eea740df72270c/pyobjc-framework-SystemConfiguration-3.2.1.tar.gz

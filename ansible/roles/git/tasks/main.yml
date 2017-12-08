@@ -1,0 +1,25 @@
+---
+- name: "Copy git ssh keys"
+  copy:
+    src: "{{ item }}"
+    dest: "/Users/{{xv_leak_test_user}}/.ssh"
+    mode: 0600
+  with_items:
+    - "id_rsa_github"
+    - "id_rsa_github.pub"
+
+- name: "git clone and update xv_leak_testing"
+  git:
+    repo: 'git@github.com:xvpn/xv_leak_testing.git'
+    dest: "{{ xv_leak_testing_directory }}"
+    key_file: "/Users/{{xv_leak_test_user}}/.ssh/id_rsa_github"
+    version: CS-1-jenkins-ci
+    update: yes
+
+- name: "git clone and update xv_leak_testing_internal"
+  git:
+    repo: 'git@github.com:xvpn/xv_leak_testing_internal.git'
+    dest: "{{ xv_leak_testing_internal_directory }}"
+    key_file: "/Users/{{xv_leak_test_user}}/.ssh/id_rsa_github"
+    version: master
+    update: yes

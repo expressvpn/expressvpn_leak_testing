@@ -1,0 +1,9 @@
+colorlog
+ipaddress
+mock
+netaddr
+netifaces
+parameterized
+paramiko
+pylint
+selenium

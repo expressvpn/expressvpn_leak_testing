@@ -1,0 +1,19 @@
+---
+- name: "Setup sudoers file"
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: "#includedir /etc/sudoers.d"
+  become: true
+
+- name: "Make /etc/sudoers.d directory"
+  file:
+    path: /etc/sudoers.d
+    state: directory
+  become: true
+
+- name: "Add sudoers include file"
+  copy:
+    src: sudoers_xv_leak_test
+    dest: /etc/sudoers.d/sudoers_xv_leak_test
+  become: true

@@ -1,0 +1,7 @@
+.DS_Store
+.pythonlocation
+python3
+output
+*.pyc
+no_git
+*.swp

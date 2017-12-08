@@ -1,0 +1,11 @@
+colorlog
+ipaddress
+mock
+netaddr
+netifaces
+parameterized
+paramiko
+psutil
+pylint
+selenium
+python-networkmanager

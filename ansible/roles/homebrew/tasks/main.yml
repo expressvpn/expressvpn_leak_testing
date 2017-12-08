@@ -1,0 +1,29 @@
+---
+- name: Check if xcode developer tools are installed
+  command: 'xcode-select -p'
+  register: xcode_result
+  ignore_errors: true
+
+- name: Check if xcode developer tools are installed
+  fail:
+    msg: "You must manually installed xcode command line tools before proceesing. Use xcode-select --install"
+  when: xcode_result.rc != 0
+
+- name: Check if homebrew is installed
+  stat:
+    path: /usr/local/bin/brew
+  register: brew_installed
+  ignore_errors: true
+
+- name: "Install homebrew"
+  shell: TRAVIS=1 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  when: brew_installed.stat.exists != True
+
+- name: "Update homebrew"
+  homebrew:
+    update_homebrew: true
+
+- name: "Install python3"
+  homebrew:
+    name: python3
+    state: latest

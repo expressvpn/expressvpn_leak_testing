@@ -1,0 +1,13 @@
+---
+- name: "Install chromedriver"
+  homebrew:
+    name: chromedriver
+    state: latest
+
+- name: "Install Geckodriver"
+  homebrew:
+    name: geckodriver
+    state: latest
+
+# - name: "Install Operadriver"
+# TODO: How? https://github.com/operasoftware/operachromiumdriver/releases

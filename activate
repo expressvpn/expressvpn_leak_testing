@@ -1,0 +1,11 @@
+# Wrapper for activating virtual env.
+
+if [ ! -f .pythonlocation ]; then
+    echo "Please run setup_python.sh first to configure python"
+    # Run exit in a subshell to set the last exit code to 1. This file gets sourced so running
+    # exit directly exits the current shell.
+    `exit 1`
+else
+    pythonlocation=`cat .pythonlocation`
+    . $pythonlocation/bin/activate
+fi

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>xv_leak_tools local ICE IP detection</title>
+    <script type="text/javascript" src="jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="ice_lookup.js"></script>
+    <script type="text/javascript">
+    function onload() {
+        var xvICE = new XvICE("#ice_ips");
+        xvICE.run();
+    }
+    </script>
+</head>
+<body onload="onload();">
+    <div id="ice_ips"></div>
+</body>
+</html>

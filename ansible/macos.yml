@@ -1,0 +1,8 @@
+---
+- hosts: macos
+  roles:
+    - { role: users }
+    - { role: homebrew }
+    - { role: git }
+    - { role: python }
+    - { role: selenium_drivers }
