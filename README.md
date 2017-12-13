@@ -31,8 +31,6 @@ The tools were initially developed as a way of unifying our leak regression test
 platform on which to build a wider range of tests. The test suite is designed with automation in
 mind but also supports manual test cases for situations where automation isn't practical.
 
-They tools have since grown into a
-
 # Why Python?
 
 We chose python because:
