@@ -49,7 +49,7 @@ class LinuxDevice(DesktopDevice):
         for command in commands:
             try:
                 info += self._connector_helper.check_command(command)[0]
-            except XVProcessException as ex:
+            except XVEx as ex:
                 L.warning("Couldn't get system info using command {}:\n{}".format(command, ex))
 
         return info
