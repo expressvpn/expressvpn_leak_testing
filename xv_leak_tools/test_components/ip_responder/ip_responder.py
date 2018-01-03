@@ -3,7 +3,8 @@ import socket
 import threading
 import time
 import ipaddress
-import secrets
+import random
+import string
 
 from xv_leak_tools.exception import XVEx
 from xv_leak_tools.helpers import TimeUp
@@ -14,7 +15,8 @@ class IPResponder(Component):
 
     def __init__(self, device, config):
         super().__init__(device, config)
-        self._token = secrets.token_hex(8).encode("ascii")
+        self._token = ''.join(
+            random.choice(string.ascii_uppercase) for _ in range(16)).encode("ascii")
         self._server_address = None
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._query_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -24,7 +26,7 @@ class IPResponder(Component):
 
         ip_responder_server = self._config.get('ip_responder_server', None)
         if ip_responder_server:
-            self._set_server(ip_responder_server, self._config.get('ip_responder_port', 10000))
+            self._set_server(ip_responder_server, self._config.get('ip_responder_port', 80))
 
     def _send_forever(self, interval=0.001):
         while not self._stop_sending.is_set():

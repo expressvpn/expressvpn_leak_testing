@@ -1,3 +1,4 @@
+import platform
 import signal
 
 from xv_leak_tools.exception import XVEx
@@ -36,12 +37,21 @@ class LinuxDevice(DesktopDevice):
         return 'linux'
 
     def os_version(self):
-        L.warning("TODO: Linux version")
-        return 'TODO: Linux version'
+        return " ".join(platform.linux_distribution())
 
     def report_info(self):
-        # TODO: Add Linux-specific reporting here.
         info = super().report_info()
+        commands = [
+            ['uname', '-a'],
+            ['lsb_release', '-a'],
+            ['lscpu'],
+        ]
+        for command in commands:
+            try:
+                info += self._connector_helper.check_command(command)[0]
+            except XVProcessException as ex:
+                L.warning("Couldn't get system info using command {}:\n{}".format(command, ex))
+
         return info
 
     def kill_process(self, pid):

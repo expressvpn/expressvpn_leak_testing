@@ -135,4 +135,4 @@ class WindowsAdvFirewall:
 
     @staticmethod
     def block_ip(ip, direction="out"):
-        return WindowsAdvFirewall.create_rule("blocK", remoteip=ip, direction=direction)
+        return WindowsAdvFirewall.create_rule("block", remoteip=ip, direction=direction)

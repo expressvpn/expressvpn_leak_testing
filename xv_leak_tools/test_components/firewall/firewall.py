@@ -12,5 +12,5 @@ class Firewall(Component, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def unblock_ip(self):
+    def unblock_ip(self, ip):
         pass

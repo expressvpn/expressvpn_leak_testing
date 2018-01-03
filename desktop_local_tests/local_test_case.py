@@ -1,3 +1,5 @@
+import time
+
 from xv_leak_tools.exception import XVEx
 from xv_leak_tools.helpers import TimeUp
 from xv_leak_tools.log import L
@@ -16,7 +18,8 @@ class LocalTestCase(TestCase):
             lost = self.localhost['network_tool'].ping('8.8.8.8', count=3, timeout=2)
             if lost == 3:
                 L.warning(
-                    "No network detected. Will try for {} seconds.".format(timeup.time_left()))
+                    "No network detected. Will try for another {} seconds.".format(timeup.time_left()))
+                time.sleep(0.5)
             elif lost == 0:
                 L.info("Network okay")
                 return

@@ -13,8 +13,11 @@ class WindowsNetworkTool(LocalComponent):
         from xv_leak_tools.network.windows.windows_network import WindowsNetwork
         self._windows_network = WindowsNetwork
 
-    def adapters_by_name(self, name, unique=True):
-        return self._windows_network.adapters_by_name(name, unique)
+    def adapter_by_name(self, name):
+        return self._windows_network.adapter_by_name(name)
+
+    def adapter_by_net_connection_id(self, id_):
+        return self._windows_network.adapter_by_net_connection_id(id_)
 
     def adapters_in_priority_order(self):
         return self._windows_network.adapters_in_priority_order()

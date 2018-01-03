@@ -124,6 +124,7 @@ class WindowsDevice(DesktopDevice): # pylint: disable=no-self-use
             # The psutil module isn't supported on cygwin
             cmd = ["wmic", "process", "where", "ProcessID='{}'".format(pid), "get", "CommandLine"]
             args = self._connector_helper.check_command(cmd)[0]
+            L.verbose("Raw wmic command line was: {}".format(args))
             return WindowsDevice._fix_quotes(args)
 
         return self._connector_helper.execute_scriptlet('command_line_for_pid.py', [pid])

@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 
-for var in "$@"
-do
-    # Don't force sudo if the user just wants help
-    if [[ "$var" == "-h" || "$var" == "--help" ]]; then
-        ./run_tests.py -h
-        exit $?
-    fi
-done
-
 RUN_TESTS="./tools/run_tests.py"
 
 # Use the correct python version
 . activate
+
+for var in "$@"
+do
+    # Don't force sudo if the user just wants help
+    if [[ "$var" == "-h" || "$var" == "--help" ]]; then
+        $RUN_TESTS $@
+        exit $?
+    fi
+done
 
 unamestr=`uname`
 if [[ "$unamestr" == 'Linux' ]]; then

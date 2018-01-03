@@ -12,11 +12,6 @@ that location as `$LEAK_TOOLS_ROOT`.
 
 ## Setup python
 
-Run
-
-* `python3 -m ensurepip`
-* `pip3 install virtualenv`
-
 Run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory where you
 want the virtualenv to be created, e.g.
 

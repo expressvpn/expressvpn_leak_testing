@@ -5,7 +5,7 @@ from xv_leak_tools.test_components.local_component import LocalComponent
 
 class LinuxNetworkTool(LocalComponent):
 
-    PROG_PING = re.compile(r"([\d]+) packets transmitted, ([\d]+) packets received.*")
+    PROG_PING = re.compile(r"([\d]+) packets transmitted, ([\d]+) received.*")
 
     def __init__(self, device, config):
         super().__init__(device, config)

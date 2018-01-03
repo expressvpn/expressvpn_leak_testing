@@ -4,8 +4,9 @@ from xv_leak_tools.log import L
 from xv_leak_tools.exception import XVEx
 from xv_leak_tools.network.common import is_mac_address
 from xv_leak_tools.test_components.component import Component
-from xv_leak_tools.test_components.packet_capturer.windows.windows_go_packet_capturer import WindowsGoPacketCapturer
+from xv_leak_tools.test_components.packet_capturer.packets import Packets
 from xv_leak_tools.test_components.packet_capturer.posix.posix_go_packet_capturer import PosixGoPacketCapturer
+from xv_leak_tools.test_components.packet_capturer.windows.windows_go_packet_capturer import WindowsGoPacketCapturer
 
 # This class has too much if platorm else platform. We should abstract and derive
 class PacketCapturer(Component):
@@ -118,18 +119,16 @@ class PacketCapturer(Component):
         for capturer in self._capturers:
             packets += capturer.stop()
 
-        if not packets:
-            L.warning('No packets were captured. '
-                      'This is probably not what you want.')
-        else:
-            L.info('{} packets captured'.format(len(packets)))
-
         # TODO: Fix these issues in the capturer itself?
         packets = [packet for packet in packets if packet['DestIP']]
         packets = [packet for packet in packets if not is_mac_address(packet['DestIP'])]
-
         for packet in packets:
             packet['SourceIP'] = ipaddress.ip_address(packet['SourceIP'])
             packet['DestIP'] = ipaddress.ip_address(packet['DestIP'])
 
+        if not packets:
+            L.warning('No packets were captured. This is probably not what you want.')
+        else:
+            L.info('{} packets captured'.format(len(packets)))
+            L.verbose("List of all packets:\n{}".format(Packets(packets)))
         return packets

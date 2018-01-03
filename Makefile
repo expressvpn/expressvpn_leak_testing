@@ -15,13 +15,10 @@ test:
 	. activate && python -m unittest discover -v
 
 # TODO: None of the setup really works well or is cross platform
-setup: setup_homebrew setup_virtualenv
+setup: setup_homebrew setup_python
 
 setup_homebrew:
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" && \
 	brew install python
 
-setup_virtualenv: python/bin/python
-	pip install virtualenv && \
-	virtualenv python && \
-	source python/bin/activate
+setup_python: ./setup_python.sh ~/xv_leak_testing_python

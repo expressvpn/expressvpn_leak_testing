@@ -8,7 +8,7 @@ class Sink:
 
     TOKEN_LENGTH = 16
 
-    def __init__(self, port=10000):
+    def __init__(self, port=80):
         self.known_clients = {}
         self.token_count = {}
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
