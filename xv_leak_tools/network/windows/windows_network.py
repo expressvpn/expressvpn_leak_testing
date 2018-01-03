@@ -48,7 +48,7 @@ def wmic_rows():
     # We're effectively performing a join on SettingID and GUID here.
     for nic_row in nic_rows:
         if nic_row['GUID'] == "":
-            L.debug("Network adapter '{}' has no GUID. Ignoring it!".format(nic_row['Name']))
+            L.verbose("Network adapter '{}' has no GUID. Ignoring it!".format(nic_row['Name']))
             continue
         for nicconfig_row in nicconfig_rows:
             if nicconfig_row['SettingID'] == nic_row['GUID']:
@@ -256,5 +256,15 @@ class WindowsNetwork:
         return adapters
 
     @staticmethod
-    def adapters_by_name(name, unique=True):
-        return WindowsNetwork._adapters_by("Name", name, unique)
+    def adapter_by_name(name):
+        adapters = WindowsNetwork._adapters_by("Name", name, unique=True)
+        if not adapters:
+            raise XVEx("Couldn't find adapter with name '{}'".format(name))
+        return adapters[0]
+
+    @staticmethod
+    def adapter_by_net_connection_id(id_):
+        adapters = WindowsNetwork._adapters_by("NetConnectionID", id_, unique=True)
+        if not adapters:
+            raise XVEx("Couldn't find adapter with network connection ID '{}'".format(id_))
+        return adapters[0]

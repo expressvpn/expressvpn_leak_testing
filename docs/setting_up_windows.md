@@ -14,9 +14,13 @@ Examples include Windump.exe, chromedriver.exe. These are standalone binaries wi
 
 ## Setup Cygwin
 
-* Install Cygwin as per the instructions here: http://www.cygwin.com/install.html.
-** Ensure you install `lynx` web client.
-* Install `apt-cyg` as per the instruction here: https://github.com/transcode-open/apt-cyg
+* Install Cygwin as per the instructions here: http://www.cygwin.com/install.html
+** Ensure you install `lynx` web client package
+* Install `apt-cyg` (as per the instruction here: https://github.com/transcode-open/apt-cyg):
+```
+lynx -source rawgit.com/transcode-open/apt-cyg/master/apt-cyg > apt-cyg
+install apt-cyg /bin
+```
 * Install the following packages:
 ```
 apt-cyg install git python3 python3-devel libffi-devel openssl-devel make bind-utils gcc-g++ curl
@@ -40,15 +44,7 @@ Optional for now. Only require if you want to run the tests remotely on the Wind
 
 ## Setup python
 
-You might face issues if you have a Windows python interpretor in your `PATH` variable. You can
-check this by
-
-Run
-
-* `python3 -m ensurepip`
-* `pip3 install virtualenv`
-
-Then run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory
+Run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory
 where you want the virtualenv to be created, e.g.
 
 ```

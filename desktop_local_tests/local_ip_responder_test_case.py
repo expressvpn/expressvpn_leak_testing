@@ -35,6 +35,7 @@ class LocalIPResponderTestCase(LocalTestCase):
         L.describe('Open and connect the VPN application')
         self.localhost['vpn_application'].open_and_connect()
 
+        L.describe('Start sending UDP packets to IP responder in the background')
         self.localhost['ip_responder'].start()
 
         # Derived classes can override this with whatever they want.

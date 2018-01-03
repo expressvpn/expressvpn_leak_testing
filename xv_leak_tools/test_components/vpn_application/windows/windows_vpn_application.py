@@ -9,6 +9,8 @@ class WindowsVPNApplication(DesktopVPNApplication):
         self._tap_adapter_name = self._get_full_tap_adapter_name(tap_adapter_name)
 
     def _get_full_tap_adapter_name(self, tap_adapter_name):
+        if tap_adapter_name is None:
+            return None
         # The logic here is necessary because Windows can give the TAP adapters suffixes like #2.
         # So the name might not match exactly what we expect. I think this happens when there's a
         # name collision. If we have two adapters with the same name then let's error as it's
@@ -18,13 +20,19 @@ class WindowsVPNApplication(DesktopVPNApplication):
         candidates = []
         for adapter in adapters:
             adapter_name = adapter.name()
-            if tap_adapter_name in adapter_name:
+            if tap_adapter_name == adapter_name:
+                # If we find an exact match then just return it
+                return adapter_name
+            if adapter_name.startswith(tap_adapter_name):
                 candidates.append(adapter_name)
         if len(candidates) == 1:
             L.debug("Found TAP adapter with name '{}'".format(candidates[0]))
             return candidates[0]
-        raise XVEx("Found several candidate adapters for the TAP adapter for {}:\n{}".format(
-            self._config['name'], candidates))
+        if len(candidates) == 0:
+            raise XVEx("Found no candidate adapters matching TAP adapter '{}' for '{}':\n{}".format(
+                tap_adapter_name, self._config['name'], candidates))
+        raise XVEx("Found several candidate adapters matching TAP adapter '{}' for '{}':\n{}".format(
+            tap_adapter_name, self._config['name'], candidates))
 
     def dns_server_ips(self):
         if not self._tap_adapter_name:
@@ -33,7 +41,7 @@ class WindowsVPNApplication(DesktopVPNApplication):
                 "method to get DNS server IPs".format(self._config["name"]))
             return super().dns_server_ips()
 
-        adapters = self._device['network_tool'].adapters_by_name(self._tap_adapter_name)
+        adapters = self._device['network_tool'].adapter_by_name(self._tap_adapter_name)
         if adapters:
             return adapters[0].dns_servers()
 

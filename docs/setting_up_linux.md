@@ -1,9 +1,17 @@
 # Linux
 
-## Install apt packages
+## Install packages
+
+### Ubuntu
 
 ```
 sudo apt-get install python3-dev libdbus-glib-1-dev
+```
+
+### Fedora
+
+```
+sudo dnf install redhat-lsb-core python3-devel gcc dbus-devel dbus-glib-devel
 ```
 
 ## Checkout xv\_leak\_tools\_internal
@@ -13,12 +21,7 @@ that location as `$LEAK_TOOLS_ROOT`.
 
 ## Setup Python
 
-Run
-
-* `python3 -m ensurepip`
-* `pip3 install virtualenv`
-
-Then run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory
+Run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory
 where you want the virtualenv to be created, e.g.
 
 ```
@@ -37,7 +40,7 @@ testing are required.
 
 First ensure that Chrome, Firefox and Opera are installed (where supported).
 
-> Note that some drives can be installed with apt.
+> Note that some drives can be installed with package managers, e.g. apt.
 
 In order for selenium to control various browsers some install steps are required.
 

@@ -48,13 +48,20 @@ class WindowsGoPacketCapturer:
         return object_from_json_file(dst, 'attribute')['data']
 
     def _find_windows_pid(self):
-        pids = self._device.pgrep("xv_packet_capture.exe")
-        for pid in pids:
-            cmd_line = self._device.command_line_for_pid(pid)
-            for arg in cmd_line:
-                if self._capture_file in arg:
-                    return pid
-        raise XVEx("Couldn't find PID")
+        # It can take a moment for the PID to register with cygwin. So retry for up to 5 seconds
+        # if it fails.
+        timeup = TimeUp(5)
+        while not timeup:
+            pids = self._device.pgrep("xv_packet_capture.exe")
+            L.debug("Found the following PIDs matching xv_packet_capture.exe: {}".format(pids))
+            for pid in pids:
+                cmd_line = self._device.command_line_for_pid(pid)
+                L.debug("Command line for PID {} was: {}".format(pid, cmd_line))
+                for arg in cmd_line:
+                    if self._capture_file in arg:
+                        return pid
+        raise XVEx("Couldn't find PID for xv_packet_capture.exe with capture file {}".format(
+            self._capture_file))
 
     def start(self):
         L.debug("Starting packet capture on interface {}".format(self._interface))

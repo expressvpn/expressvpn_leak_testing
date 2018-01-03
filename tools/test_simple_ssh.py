@@ -28,7 +28,7 @@ L.configure({
 
 CONNECTOR = SimpleSSHConnector(
     ips=['10.163.0.1'], username='root',
-    ssh_key='~/.ssh/id_rsa',
+    ssh_key=os.path.expanduser('~/.ssh/id_rsa'),
     ssh_password=None)
 
 RET, STDOUT, STDERR = CONNECTOR.execute(['ls'])

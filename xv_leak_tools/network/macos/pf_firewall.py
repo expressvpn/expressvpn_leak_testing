@@ -4,7 +4,9 @@
 # Useful reference manual for pf: https://murusfirewall.com/Documentation/OS%20X%20PF%20Manual.pdf
 
 import os
+import random
 import re
+import string
 import tempfile
 
 from xv_leak_tools.exception import XVEx
@@ -12,13 +14,15 @@ from xv_leak_tools.helpers import is_root_user
 from xv_leak_tools.log import L
 from xv_leak_tools.process import check_subprocess, XVProcessException
 
-# TODO: Should be a component
 class PFCtl:
 
-    LEAK_TEST_ANCHOR = 'xv_leak_test'
     PROG_TOKEN = re.compile("Token : ([0-9]+)")
 
-    def __init__(self, no_disable=False):
+    def __init__(self, anchor_name=None, no_disable=False):
+        if anchor_name is None:
+            anchor_name = PFCtl._random_anchor_name()
+
+        self._anchor_name = anchor_name
         self._no_disable = no_disable
         self._token = None
         if self._no_disable:
@@ -34,9 +38,12 @@ class PFCtl:
             if not self._token:
                 raise XVEx("Couldn't parse token from pfctl output:\n {}".format("\n".join(lines)))
 
+        self._ensure_anchor_is_present()
+
     def __del__(self):
         if self._no_disable:
             return
+        self._ensure_anchor_is_removed()
         L.debug("Releasing pfctl reference {}".format(self._token))
         try:
             self._pfctl(['-X', self._token])
@@ -52,6 +59,19 @@ class PFCtl:
         cmd = ['pfctl'] + cmd
         L.debug("Executing pfctl command: {}".format(" ".join(cmd)))
         return check_subprocess(cmd)
+
+    @staticmethod
+    def _rewrite_root_rules(rules):
+        rules_file = PFCtl._create_rules_file(rules)
+
+        PFCtl._pfctl(['-Fr'])
+        PFCtl._pfctl(['-f', rules_file])
+        L.debug("Rewrote root pfctl rules")
+
+    @staticmethod
+    def _random_anchor_name():
+        return "xv_leak_test_{}".format(
+            "".join(random.choice(string.ascii_uppercase) for _ in range(10)))
 
     @staticmethod
     def _read_root_rules():
@@ -79,33 +99,45 @@ class PFCtl:
         return path
 
     @staticmethod
-    def ensure_leak_test_anchor_present():
-        rules = PFCtl._read_root_rules()
-        for rule in rules:
-            if PFCtl.LEAK_TEST_ANCHOR in rule:
-                L.debug("Leak test anchor {} already present in rules".format(
-                    PFCtl.LEAK_TEST_ANCHOR))
-                return
-
-        rules.append("anchor \"{}\" all".format(PFCtl.LEAK_TEST_ANCHOR))
-        rules_file = PFCtl._create_rules_file(rules)
-
-        PFCtl._pfctl(['-Fr'])
-        PFCtl._pfctl(['-f', rules_file])
-        L.debug("Rewrote root pfctl rules")
-
-    @staticmethod
     def flush_state():
         PFCtl._pfctl(['-Fs'])
 
-    @staticmethod
-    def set_leak_test_rules(rules):
-        PFCtl.ensure_leak_test_anchor_present()
+    def _ensure_anchor_is_present(self):
+        rules = PFCtl._read_root_rules()
+        new_rules = []
+        for rule in rules:
+            if "xvpn" in rule:
+                # Ensure we always put the leak testing rules before xvpn ones.
+                # TODO: This isn't vendor agnostic. We should make it so.
+                new_rules.append("anchor \"{}\" all".format(self._anchor_name))
+            new_rules.append(rule)
+            if self._anchor_name in rule:
+                L.debug("Leak test anchor {} already present in rules".format(self._anchor_name))
+                return
+
+        PFCtl._rewrite_root_rules(new_rules)
+
+    def _ensure_anchor_is_removed(self):
+        rules = PFCtl._read_root_rules()
+        new_rules = []
+        need_update = False
+        for rule in rules:
+            if self._anchor_name not in rule:
+                new_rules.append(rule)
+            else:
+                need_update = True
+
+        if not need_update:
+            L.debug("Leak test anchor {} wasn't found. No need to remove".format(self._anchor_name))
+            return
+
+        PFCtl._rewrite_root_rules(new_rules)
+
+    def set_rules(self, rules):
         rules_file = PFCtl._create_rules_file(rules)
-        PFCtl._pfctl(['-a', PFCtl.LEAK_TEST_ANCHOR, '-f', rules_file])
+        PFCtl._pfctl(['-a', self._anchor_name, '-f', rules_file])
         PFCtl.flush_state()
 
-    @staticmethod
-    def clear_leak_test_rules():
-        PFCtl._pfctl(['-a', PFCtl.LEAK_TEST_ANCHOR, '-F', 'all'])
+    def clear_rules(self):
+        PFCtl._pfctl(['-a', self._anchor_name, '-F', 'all'])
         PFCtl.flush_state()

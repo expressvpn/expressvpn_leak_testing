@@ -2,6 +2,8 @@ from xv_leak_tools.log import L
 from xv_leak_tools.exception import XVEx
 from xv_leak_tools.test_components.firewall.firewall import Firewall
 
+# TODO: Fix this class. It can only block one ip at once! Make changes to WindowsAdvFirewall if
+# necessary
 class WindowsFirewall(Firewall):
 
     def __init__(self, device, config):
@@ -17,7 +19,7 @@ class WindowsFirewall(Firewall):
         L.info("Adding outgoing IP block for {}".format(ip))
         self._rule_name = self._adv_firewall.block_ip(ip)
 
-    def unblock_ip(self):
+    def unblock_ip(self, ip):
         if self._rule_name is not None:
             self._adv_firewall.delete_rule(self._rule_name)
             self._rule_name = None
