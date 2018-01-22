@@ -6,6 +6,7 @@ from xv_leak_tools.helpers import unused
 from xv_leak_tools.log import L
 from xv_leak_tools.test_device.desktop_device import DesktopDevice
 from xv_leak_tools.test_device.connector_helper import ConnectorHelper
+from xv_leak_tools.process import XVProcessException
 
 # TODO: consider a UnixDevice as ancestor of MacOSDevice, LinuxDevice
 
@@ -49,7 +50,7 @@ class LinuxDevice(DesktopDevice):
         for command in commands:
             try:
                 info += self._connector_helper.check_command(command)[0]
-            except XVEx as ex:
+            except XVProcessException as ex:
                 L.warning("Couldn't get system info using command {}:\n{}".format(command, ex))
 
         return info
