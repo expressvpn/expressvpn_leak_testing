@@ -41,9 +41,9 @@ class WindowsVPNApplication(DesktopVPNApplication):
                 "method to get DNS server IPs".format(self._config["name"]))
             return super().dns_server_ips()
 
-        adapters = self._device['network_tool'].adapter_by_name(self._tap_adapter_name)
-        if adapters:
-            return adapters[0].dns_servers()
+        adapter = self._device['network_tool'].adapter_by_name(self._tap_adapter_name)
+        if adapter:
+            return adapter.dns_servers()
 
         L.warning(
             "Couldn't find TAP adapter '{}' for VPN application '{}'. Falling back to default "

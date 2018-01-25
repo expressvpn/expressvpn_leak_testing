@@ -17,6 +17,7 @@ from xv_leak_tools.process import check_subprocess, XVProcessException
 class PFCtl:
 
     PROG_TOKEN = re.compile("Token : ([0-9]+)")
+    AHCHOR_PREFIX = "xv_leak_test_"
 
     def __init__(self, anchor_name=None, no_disable=False):
         if anchor_name is None:
@@ -26,7 +27,10 @@ class PFCtl:
         self._no_disable = no_disable
         self._token = None
         if self._no_disable:
-            self._pfctl(['-e'])
+            try:
+                self._pfctl(['-e'])
+            except XVProcessException:
+                pass
         else:
             lines = self._pfctl(['-E'])[1].splitlines()
             for line in lines:
@@ -62,6 +66,7 @@ class PFCtl:
 
     @staticmethod
     def _rewrite_root_rules(rules):
+        L.verbose("Writing new pfctl rules: {}".format(rules))
         rules_file = PFCtl._create_rules_file(rules)
 
         PFCtl._pfctl(['-Fr'])
@@ -70,7 +75,7 @@ class PFCtl:
 
     @staticmethod
     def _random_anchor_name():
-        return "xv_leak_test_{}".format(
+        return "{}{}".format(PFCtl.AHCHOR_PREFIX,
             "".join(random.choice(string.ascii_uppercase) for _ in range(10)))
 
     @staticmethod
@@ -103,17 +108,25 @@ class PFCtl:
         PFCtl._pfctl(['-Fs'])
 
     def _ensure_anchor_is_present(self):
+        L.debug("Ensuring {} anchor is present".format(self._anchor_name))
         rules = PFCtl._read_root_rules()
         new_rules = []
+        for rule in rules:
+            if self._anchor_name in rule:
+                L.debug("Leak test anchor {} already present in rules".format(self._anchor_name))
+                return
+
+        added_test_rule = False
         for rule in rules:
             if "xvpn" in rule:
                 # Ensure we always put the leak testing rules before xvpn ones.
                 # TODO: This isn't vendor agnostic. We should make it so.
                 new_rules.append("anchor \"{}\" all".format(self._anchor_name))
+                added_test_rule = True
             new_rules.append(rule)
-            if self._anchor_name in rule:
-                L.debug("Leak test anchor {} already present in rules".format(self._anchor_name))
-                return
+
+        if not added_test_rule:
+            new_rules.append("anchor \"{}\" all".format(self._anchor_name))
 
         PFCtl._rewrite_root_rules(new_rules)
 
@@ -133,6 +146,9 @@ class PFCtl:
 
         PFCtl._rewrite_root_rules(new_rules)
 
+    def _flush_anchor_rules(self, anchor):
+        PFCtl._pfctl(["-a", anchor, "-Fr"])
+
     def set_rules(self, rules):
         rules_file = PFCtl._create_rules_file(rules)
         PFCtl._pfctl(['-a', self._anchor_name, '-f', rules_file])
@@ -141,3 +157,20 @@ class PFCtl:
     def clear_rules(self):
         PFCtl._pfctl(['-a', self._anchor_name, '-F', 'all'])
         PFCtl.flush_state()
+
+    def cleanup(self):
+        # First remove references to the anchors
+        rules = PFCtl._read_root_rules()
+        new_rules = []
+        for rule in rules:
+            if PFCtl.AHCHOR_PREFIX not in rule:
+                new_rules.append(rule)
+
+        PFCtl._rewrite_root_rules(new_rules)
+
+        # Next remove anchors themselves
+        lines = [line.strip() for line in PFCtl._pfctl(['-sA'])[0].splitlines()]
+        for anchor in lines:
+            if PFCtl.AHCHOR_PREFIX not in anchor:
+                continue
+            self._flush_anchor_rules(anchor)

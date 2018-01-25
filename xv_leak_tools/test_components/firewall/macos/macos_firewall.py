@@ -32,7 +32,18 @@ class MacOSFirewall(Firewall):
         if self._pfctl is None:
             return
 
+        L.info("Removing outgoing IP block for {}".format(ip))
+
         rules_to_remove = self._block_ip_rules(ip)
         for rule_to_remove in rules_to_remove:
             self._current_rules = [rule for rule in self._current_rules if rule != rule_to_remove]
         self._pfctl.set_rules(self._current_rules)
+
+    def cleanup(self):
+        '''This doesn't flush the whole set of rules. It just removes any lingering test suite rules
+        '''
+        from xv_leak_tools.network.macos.pf_firewall import PFCtl
+        if self._pfctl is None:
+            self._pfctl = PFCtl()
+
+        self._pfctl.cleanup()

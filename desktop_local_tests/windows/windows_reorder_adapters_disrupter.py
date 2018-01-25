@@ -8,7 +8,9 @@ class WindowsReorderAdaptersDisrupter(Disrupter):
         self._restrict_parameters(must_disrupt=True, must_restore=False)
         # TODO: Does this really exclude all adapters we don't want? Maybe exclude TAP somehow?
         adapters = self._device['network_tool'].adapters_in_priority_order()
+        L.verbose("All adapters: {}".format(adapters))
         adapters = [adapter for adapter in adapters if adapter.pingable()]
+        L.verbose("Pingable adapters: {}".format(adapters))
         self._adapter1 = adapters[0]
         self._adapter2 = adapters[1]
         self._adapter1_original_metric = self._adapter1.interface_metric()

@@ -21,7 +21,10 @@ def execute_subprocess(cmd):
     process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     retcode = process.wait()
-    return retcode, stdout.decode('utf-8'), stderr.decode('utf-8')
+    try:
+        return retcode, stdout.decode(), stderr.decode()
+    except UnicodeDecodeError:
+        return retcode, stdout.decode('cp1252'), stderr.decode('cp1252')
 
 def check_subprocess(cmd):
     retcode, stdout, stderr = execute_subprocess(cmd)

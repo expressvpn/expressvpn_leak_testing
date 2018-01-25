@@ -171,12 +171,13 @@ Enabled:            {NetEnabled}""".format(**self.data)
 
     def pingable(self):
         if not self.enabled():
+            L.verbose("{} not enabled".format(self.name()))
             return False
         ips = self.ip_addresses()
         if not ips:
+            L.verbose("{} has no IP address".format(self.name()))
             return False
         cmd = ['ping', '-n', '1', '-w', '2', '-S', ips[0].exploded, '8.8.8.8']
-        output = ""
         try:
             output = check_subprocess(cmd)[0]
             if 'Received = 1' in output:

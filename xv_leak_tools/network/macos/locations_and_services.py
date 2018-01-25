@@ -272,7 +272,7 @@ class NetworkService(_NetworkObject):
         dns_servers = check_subprocess(['networksetup', '-getdnsservers', self._name])
         dns_servers = dns_servers[0].strip().split('\n')
         if "There aren't any DNS Servers set on" in dns_servers[0]:
-            return None
+            return []
         return [ipaddress.ip_address(ip) for ip in dns_servers]
 
     def dns_servers(self, include_dhcp_servers=True):
