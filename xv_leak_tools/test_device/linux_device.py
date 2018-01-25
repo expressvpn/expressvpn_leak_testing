@@ -6,6 +6,7 @@ from xv_leak_tools.helpers import unused
 from xv_leak_tools.log import L
 from xv_leak_tools.test_device.desktop_device import DesktopDevice
 from xv_leak_tools.test_device.connector_helper import ConnectorHelper
+from xv_leak_tools.process import XVProcessException
 
 # TODO: consider a UnixDevice as ancestor of MacOSDevice, LinuxDevice
 
