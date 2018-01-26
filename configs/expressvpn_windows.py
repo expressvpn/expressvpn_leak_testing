@@ -94,7 +94,7 @@ TEMPLATE_PARAMETERS_LIST = [
             'TestWindowsIPResponderDisruptAdapter',
             'TestWindowsIPResponderDisruptEnableNewAdapter',
             'TestWindowsIPResponderDisruptReorderAdapters',
-            'TestWindowsIPResponderDisruptVPNConnection',
+            'TestIPResponderDisruptVPNConnection',
             'TestIPResponderDisruptKillVPNProcess',
             'TestIPResponderDisruptVPNConnection',
 

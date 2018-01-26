@@ -17,7 +17,7 @@ done
 unamestr=`uname`
 if [[ "$unamestr" == 'Linux' ]]; then
     echo "Leak tools require root permissions..."
-    sudo -E $RUN_TESTS $@
+    sudo env "PATH=$PATH" $RUN_TESTS $@
 elif [[ "$unamestr" == 'Darwin' ]]; then
     echo "Leak tools require root permissions..."
     sudo $RUN_TESTS $@

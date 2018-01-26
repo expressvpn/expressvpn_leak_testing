@@ -28,7 +28,7 @@ class LocalTestWrapper:
         if output_file:
             return output_file
 
-        return  "{}.remote.{}".format(
+        return "{}.remote.{}".format(
             os.path.splitext(os.path.basename(input_file))[0], output_format)
 
     @staticmethod

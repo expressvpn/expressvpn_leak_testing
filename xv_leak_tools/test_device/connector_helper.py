@@ -28,12 +28,12 @@ class ConnectorHelper:
         '''Check that virtualenv was properly setup on the device. If we don't check and there's
         a problem then this can lead to cryptic errors from the helper function below. Better to
         catch this early on.'''
+        # source doesn't error if the sourced file is missing. This file "shouldn't" ever be
+        # missing but let's check.
         try:
-            # source doesn't error if the sourced fail is missing. This file "shouldn't" ever be
-            # missing but let's check.
             self.check_command(['stat', '.pythonlocation'])
             self.check_command(['source', 'activate'])
-        except XVProcessException as _:
+        except XVProcessException:
             raise XVEx("Virtualenv doesn't appear to be setup properly for device '{}'".format(
                 self._device.device_id()))
 
@@ -55,6 +55,14 @@ class ConnectorHelper:
         #     # Ignore the error, but expect failure
         #     L.warning("Couldn't chown temp directory {} back to user {}".format(
         #         self._device.temp_directory(), self._device.tools_user()))
+
+    def _remove_temp_directory(self):
+        L.debug("Removing temp directory {}".format(self._device.temp_directory()))
+        cmd = ['sudo', '-n', 'rm', '-rf', self._device.temp_directory()]
+        ret, stdout, stderr = self._device.connector().execute(cmd)
+        # TODO: warn instead of raising
+        if ret != 0:
+            raise XVProcessException(cmd, ret, stdout, stderr)
 
     def check_command(self, cmd, root=False):
         cmd = ConnectorHelper._sanitize_cmd(cmd)

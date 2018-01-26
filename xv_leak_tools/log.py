@@ -76,7 +76,7 @@ class LeakTestLogger:
             logger.addHandler(file_handler)
 
         if stream_format:
-            formatter = colorlog.ColoredFormatter(fmt=stream_format, log_colors=log_colors)
+            formatter = colorlog.TTYColoredFormatter(fmt=stream_format, log_colors=log_colors)
             stream_handler = logging.StreamHandler(stream=sys.stdout)
             stream_handler.setFormatter(formatter)
             logger.addHandler(stream_handler)

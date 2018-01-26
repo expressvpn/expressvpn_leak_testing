@@ -1,6 +1,6 @@
 from xv_leak_tools.test_templating.templating import TemplateEvaluator, Replacee, Each
 
-NO_IPV6 = True
+NO_IPV6 = False
 
 STRONGEST_SETTINGS = """Ensure Network Lock, IPv6 leak protection and Only user ExpressVPN DNS
 servers are enabled. Also ensure access to LAN is allowed"""

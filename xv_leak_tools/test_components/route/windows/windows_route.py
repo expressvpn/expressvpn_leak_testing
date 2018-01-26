@@ -1,6 +1,6 @@
 import re
 
-import netaddr
+import netaddr # pylint: disable=import-error
 
 from xv_leak_tools.test_components.route.route import Route, RouteEntry
 from xv_leak_tools.test_device.connector_helper import ConnectorHelper

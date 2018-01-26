@@ -9,10 +9,12 @@ import subprocess
 import sys
 import tempfile
 import time
+import ipaddress
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
 
 from xv_leak_tools import tools_user
+from xv_leak_tools.exception import XVEx
 from xv_leak_tools.helpers import exception_to_string, current_os
 from xv_leak_tools.import_helpers import import_by_filename
 from xv_leak_tools.log import L
@@ -20,6 +22,13 @@ from xv_leak_tools.object_parser import object_from_command_line
 from xv_leak_tools.path import windows_safe_path, makedirs_safe
 from xv_leak_tools.test_execution.test_run_context import TestRunContext
 from xv_leak_tools.test_execution.test_runner import TestRunner
+from xv_leak_tools.network.macos.pf_firewall import PFCtl
+
+def punch_hole_in_firewall(pf, ip):
+    if current_os() != 'macos':
+        raise XVEx('Editing the firewall is only supported for PF/macOS')
+    pf.set_rules(["pass in quick from {} no state".format(ip),
+                  "pass out quick to {} no state".format(ip)])
 
 def filter_tests(tests, regex):
     filtered_tests = []
@@ -76,12 +85,25 @@ def main(argv=None):
         '"INFO", "DEBUG", "VERBOSE"].')
     parser.add_argument(
         '-2', '--v2', default=False, action='store_true', help='DEPRECATED: Does nothing')
+    parser.add_argument(
+        '-f', '--firewall_exemption', default=None, metavar="IP", nargs='+',
+        help='Punch a hole in the firewall for the given IP address.')
+    parser.add_argument(
+        '-p', '--pidfile', default=None, metavar='PATH_TO_PIDFILE', nargs=1,
+        help='File to write the PID to.')
     args = parser.parse_args(argv)
 
     args.log_level = args.log_level.upper() if args.log_level else None
     # We'll reconfigure in a second but lets get logging going asap!
     inital_log_level = args.log_level if args.log_level else "INFO"
     TestRunner.configure_logger(level=inital_log_level)
+
+    if args.pidfile:
+        pid = os.getpid()
+        path = os.path.abspath(args.pidfile.pop())
+        L.debug("Writing PID {} to {}".format(pid, path))
+        with open(path, 'w') as pidfile:
+            pidfile.write(str(pid))
 
     if args.output_root is None:
         if current_os() == "windows":
@@ -104,6 +126,13 @@ def main(argv=None):
     # Just add output_directory to the args object as it makes life simpler.
     args.output_directory = os.path.join(args.output_root, args.run_directory)
     makedirs_safe(args.output_directory)
+
+    if args.firewall_exemption:
+        pf = PFCtl()
+        ips = [ipaddress.ip_network(ip).exploded for ip in args.firewall_exemption]
+        ip_list = '{ ' + ', '.join(ips) + ' }'
+        L.info("Punching hole for {}".format(ips))
+        punch_hole_in_firewall(pf, ip_list)
 
     context_dict = import_by_filename(args.context).CONTEXT
     cmd_line_overrides = [

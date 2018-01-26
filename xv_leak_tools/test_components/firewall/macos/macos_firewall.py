@@ -22,7 +22,7 @@ class MacOSFirewall(Firewall):
         # Delay initialize the PFCtl object to prevent VPN application connect from removing our
         # reference to the pf firewall. Some VPN apps take full ownership of the firewall which can
         # mean that the firewall will be disabled unless we initialize here.
-        if self._pfctl == None:
+        if self._pfctl is None:
             self._pfctl = PFCtl()
 
         self._current_rules += MacOSFirewall._block_ip_rules(ip)

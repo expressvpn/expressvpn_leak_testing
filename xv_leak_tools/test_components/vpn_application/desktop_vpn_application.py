@@ -5,6 +5,7 @@ import re
 from abc import ABCMeta, abstractmethod
 
 from xv_leak_tools.exception import XVEx
+from xv_leak_tools.helpers import current_os
 from xv_leak_tools.log import L
 from xv_leak_tools.network.common import RE_IPV4_ADDRESS
 from xv_leak_tools.test_components.vpn_application.vpn_application import VPNApplication
@@ -90,6 +91,40 @@ class L2TPDetector(VPNDetector):
         # Prevent anyone who's holding on to this class from using stale data.
         self._reset()
         L.debug("Detected the following info about openvpn: {}".format(vpn_info))
+        return vpn_info
+
+# TODO: This is very ad-hoc for now. Some VPNs use Network Extensions to implement their VPN, e.g.
+# for IKEv2. Currently haven't found a reliable way to distinguish these VPNs yet so for now they
+# are just classes as "network extension" protocols. This will likely need work.
+class NEDetector(VPNDetector):
+
+    # pylint: disable=too-few-public-methods
+
+    def __init__(self, device):
+        self._device = device
+        self._ne_processes_cache = None
+
+    def _ne_processes(self):
+        if self._ne_processes_cache:
+            return self._ne_processes_cache
+        self._ne_processes_cache = []
+        self._ne_processes_cache += self._device.pgrep('neagent')
+        return self._ne_processes_cache
+
+    def detect(self):
+        if current_os() != "macos":
+            return None
+
+        L.debug("Trying to determine if we're using a macOS network extension")
+        vpn_info = VPNInfo()
+
+        if not self._ne_processes():
+            L.debug('Not using a network extension')
+            return None
+
+        L.info("Detected a VPN network extension (unknown protocol)")
+
+        vpn_info.vpn_processes = self._ne_processes()
         return vpn_info
 
 class OpenVPNDetector(VPNDetector):
@@ -335,7 +370,8 @@ class DesktopVPNApplication(VPNApplication):
         self._app_path = app_path
         self._vpn_detectors = [
             OpenVPNDetector(self._device),
-            L2TPDetector(self._device)
+            L2TPDetector(self._device),
+            NEDetector(self._device),
         ]
         self._routes_before_connect = None
 

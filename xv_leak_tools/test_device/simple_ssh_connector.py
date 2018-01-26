@@ -16,7 +16,7 @@ from xv_leak_tools.test_device.connector import Connector
 
 class SimpleSSHConnector(Connector):
 
-    # pylint: disable=too-few-public-methods,too-many-arguments
+    # pylint: disable=too-few-public-methods,too-many-arguments,too-many-instance-attributes
 
     # TODO: Account password shouldn't be needed. Paramiko is either or.
     def __init__(self, ips, username, account_password=None, ssh_key=None, ssh_password=None):
@@ -56,7 +56,6 @@ class SimpleSSHConnector(Connector):
     def _ssh_connect(self):
         connect_errors = ""
         for ip in self._ips:
-            self._create_route_to_ip(ip)
             connect_dict = {
                 'hostname': ip,
                 'username': self._username,
@@ -159,22 +158,19 @@ class SimpleSSHConnector(Connector):
         if root and self._username.decode() != 'root':
             cmd = ['sudo', '-n'] + cmd
 
+        cmd = ["[", "-f", ".source", "]", "&&", ".", ".source;"] + cmd
+
         L.verbose("SimpleSSHConnector: Executing remote command: '{}'".format(cmd))
 
-        chan = self._ssh_client.get_transport().open_session()
-        chan.settimeout(2)
         # TODO: This will block if stdin on the remote machine blocks. Can't ctrl-c. Consider a
         # custom wrapper with select and timeout
-        chan.exec_command(' '.join(cmd))
-        bufsize = -1
-        # stdin = chan.makefile('wb', bufsize)
-        stdout = chan.makefile('r', bufsize)
-        stderr = chan.makefile_stderr('r', bufsize)
+        # get_pty is required for accessing environment variables.
+        output = self._ssh_client.exec_command(' '.join(cmd))
+        return_code = output[1].channel.recv_exit_status()
+        stdout = output[1].read().decode().strip()
+        stderr = output[2].read().decode().strip()
 
-        retcode = chan.recv_exit_status()
-        # paramiko splits output into a list AND keeps the newline. So joining like this puts it
-        # back to how we'd "normally" expect output.
-        return retcode, ''.join(stdout), ''.join(stderr)
+        return return_code, stdout, stderr
 
     def push(self, src, dst):
         self._ensure_connected()

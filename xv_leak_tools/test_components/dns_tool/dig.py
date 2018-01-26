@@ -73,6 +73,12 @@ class Dig: # pylint: disable=too-few-public-methods
         else:
             cmd = ['dig', "+time={}".format(timeout), hostname]
 
-        stdout = self._execute(cmd)[0]
+        # Prevent the output from being empty
+        stdout = None
+        while not stdout:
+            stdout = self._execute(cmd)[0]
+            if not stdout:
+                L.verbose("dig output was empty; doing another lookup.")
+
         L.verbose("dig output: {}".format(stdout))
         return Dig._parse_output(stdout)

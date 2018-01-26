@@ -19,7 +19,6 @@ TYPE_LOOKUP = {
     TXT: QTYPE.TXT,
 }
 
-
 class Record:
     def __init__(self, rdata_type, *args, rtype=None, rname=None, ttl=None, **kwargs):
         if isinstance(rdata_type, RD):
@@ -58,8 +57,7 @@ class Record:
     def sensible_ttl(self):
         if self._rtype in (QTYPE.NS, QTYPE.SOA):
             return 60 * 60 * 24
-        else:
-            return 300
+        return 300
 
     @property
     def is_soa(self):
