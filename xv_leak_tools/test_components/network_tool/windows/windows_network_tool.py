@@ -22,6 +22,13 @@ class WindowsNetworkTool(LocalComponent):
     def adapters_in_priority_order(self):
         return self._windows_network.adapters_in_priority_order()
 
+    def primary_adapter(self):
+        adapters = self.adapters_in_priority_order()
+        pingable_adapters = [adapter for adapter in adapters if adapter.pingable()]
+        if pingable_adapters:
+            return pingable_adapters[0]
+        raise XVEx("No pingable adapters. All adapters are {}".format(adapters))
+
     def report_info(self):
         ret = ''
         return ret

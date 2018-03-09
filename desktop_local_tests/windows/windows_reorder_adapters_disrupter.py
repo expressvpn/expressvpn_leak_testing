@@ -1,4 +1,5 @@
 from xv_leak_tools.log import L
+from xv_leak_tools.exception import XVEx
 from desktop_local_tests.disrupter import Disrupter
 
 class WindowsReorderAdaptersDisrupter(Disrupter):
@@ -11,6 +12,9 @@ class WindowsReorderAdaptersDisrupter(Disrupter):
         L.verbose("All adapters: {}".format(adapters))
         adapters = [adapter for adapter in adapters if adapter.pingable()]
         L.verbose("Pingable adapters: {}".format(adapters))
+        if len(adapters) < 2:
+            raise XVEx("There must be at least 2 pingable adapters. All pingable adapters are {}"
+                       .format(adapters))
         self._adapter1 = adapters[0]
         self._adapter2 = adapters[1]
         self._adapter1_original_metric = self._adapter1.interface_metric()

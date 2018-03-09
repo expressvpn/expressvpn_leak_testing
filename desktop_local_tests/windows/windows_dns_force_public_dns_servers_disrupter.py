@@ -8,18 +8,20 @@ class WindowsDNSForcePublicDNSServersDisrupter(Disrupter):
         super().__init__(device, parameters)
         self._restrict_parameters(must_disrupt=True, must_restore=False, must_wait=False)
         self._primary_adapter = self._find_primary_adapter()
+        self._has_disrupted = False
 
     def _find_primary_adapter(self):
-        adapters = self._device['network_tool'].adapters_in_priority_order()
-        primary_adapter = [adapter for adapter in adapters if adapter.pingable()][0]
+        primary_adapter = self._device['network_tool'].primary_adapter()
         L.info("Primary network adapter is {}".format(primary_adapter.name()))
         return primary_adapter
 
     def disrupt(self):
+        self._has_disrupted = True
         message_and_await_enter("Set the DNS servers for adapter {} ({}) to 8.8.8.8".format(
             self._primary_adapter.name(), self._primary_adapter.net_connection_id()))
 
     def teardown(self):
-        message_and_await_enter("Reset the DNS servers for adapter {} ({})".format(
-            self._primary_adapter.name(), self._primary_adapter.net_connection_id()))
+        if self._has_disrupted:
+            message_and_await_enter("Reset the DNS servers for adapter {} ({})".format(
+                self._primary_adapter.name(), self._primary_adapter.net_connection_id()))
         super().teardown()

@@ -35,6 +35,8 @@ class DNSDuringDisruptionTestCase(LocalTestCase):
         vpn_dns_servers = self.localhost['vpn_application'].dns_server_ips()
         L.info("VPN DNS servers are: {}".format(vpn_dns_servers))
 
+        self._check_network(time_limit=20)
+
         L.describe('Check DNS server used was a VPN DNS server')
         self.dns_helper.dns_server_is_vpn_server(dns_servers_before_connect, vpn_dns_servers)
 

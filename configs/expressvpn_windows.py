@@ -85,7 +85,6 @@ TEMPLATE_PARAMETERS_LIST = [
             # DNS tests
             'TestWindowsDNSDisruptAdapter',
             'TestWindowsDNSDisruptEnableNewAdapter',
-            'TestWindowsDNSForcePublicDNSServers',
             'TestWindowsDNSDisruptReorderAdapters',
             'TestDNSDisruptKillVPNProcess',
             'TestDNSDisruptVPNConnection',
@@ -100,8 +99,9 @@ TEMPLATE_PARAMETERS_LIST = [
 
             # Manual Tests
             # Disable to keep the tests automated - move manual tests to different config
-            # 'TestDNSDisruptCable',
-            # 'TestIPResponderDisruptCable',
+            #'TestDNSDisruptCable',
+            #'TestIPResponderDisruptCable',
+            #'TestWindowsDNSForcePublicDNSServers', # TODO: make automatic.
         ]),
     },
 ]

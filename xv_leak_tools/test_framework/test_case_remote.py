@@ -5,6 +5,7 @@ import ipaddress
 from xv_leak_tools.log import L
 from xv_leak_tools.test_framework.test_case import TestCase
 from xv_leak_tools.test_device.connector_helper import ConnectorHelper
+from xv_leak_tools.exception import XVEx
 
 class TestCaseRemote(TestCase):
 
@@ -40,6 +41,7 @@ class TestCaseRemote(TestCase):
                '-f', ' '.join(self.host_ips())]
         # TODO: Use .requires_root to figure out if the test needs root.
         ret, stdout, stderr = self.connector_helper.execute_command(cmd, root=True)
+        test_error = False
 
         # TODO: Reconsider all this. Maybe we shouldn't display the output here as it screws up the
         # logs. Possibly better is to have ERROR log go to stderr then we just dump stderr here
@@ -51,6 +53,8 @@ class TestCaseRemote(TestCase):
             for line in stdout.splitlines():
                 # TODO: Logger not satisfying my needs!
                 print(line)
+                if "Ran 1 / 1 tests: 0 passes, 0 fails, 1 errors" in line:
+                    test_error = True
             L.info('*' * 80)
             L.info('END stdout from remote machine')
             L.info('*' * 80)
@@ -69,6 +73,10 @@ class TestCaseRemote(TestCase):
         if ret == 0:
             L.info('Remote test execution succeeded')
             return
+
+        if test_error:
+            L.error('Remote test execution failed with an error')
+            raise XVEx("Remote test error")
 
         L.error('Remote test execution failed')
         self.failTest('Remote test run failed!')

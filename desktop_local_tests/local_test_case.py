@@ -11,14 +11,14 @@ class LocalTestCase(TestCase):
         super().__init__(devices, parameters)
         self.localhost = self.devices['localhost']
 
-    def _check_network(self):
+    def _check_network(self, time_limit=5):
         L.info("Checking if there's a network connection")
-        timeup = TimeUp(5)
+        timeup = TimeUp(time_limit)
         while not timeup:
             lost = self.localhost['network_tool'].ping('8.8.8.8', count=3, timeout=2)
             if lost == 3:
-                L.warning(
-                    "No network detected. Will try for another {} seconds.".format(timeup.time_left()))
+                L.warning("No network detected. Will try for another {} seconds"
+                          .format(int(timeup.time_left())))
                 time.sleep(0.5)
             elif lost == 0:
                 L.info("Network okay")
@@ -26,9 +26,7 @@ class LocalTestCase(TestCase):
             else:
                 L.warning("Network detected but there's some packet loss")
                 return
-        raise XVEx(
-            "No network connection detected. Tests must be started with an active network. "
-            "Do you have any VPN applications open?")
+        raise XVEx("No network connection detected.")
 
     def setup(self):
         super().setup()

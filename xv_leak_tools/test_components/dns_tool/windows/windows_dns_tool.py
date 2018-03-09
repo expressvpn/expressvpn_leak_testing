@@ -15,14 +15,13 @@ class WindowsDNSTool(DNSLookupTool):
 
     def known_servers(self):
         output = self._connector_helper.check_command([
-            'wmic.exe', 'nicconfig', 'where', '"IPEnabled  = True"', 'get', 'DNSServerSearchOrder',
+            'wmic.exe', 'nicconfig', 'where', '"IPEnabled = True"', 'get', 'DNSServerSearchOrder',
             '/format:rawxml'
         ])[0]
 
         L.verbose("Got raw wmic output: {}".format(output))
         dns_servers = []
         for nic in fromstring(output).findall("./RESULTS/CIM/INSTANCE"):
-
             for prop in nic:
                 if prop.tag != 'PROPERTY.ARRAY':
                     continue

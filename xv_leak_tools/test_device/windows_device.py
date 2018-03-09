@@ -1,8 +1,10 @@
 import re
+import ipaddress
+import netifaces
 
 from xv_leak_tools.exception import XVEx
 from xv_leak_tools.log import L
-from xv_leak_tools.path import windows_path_split, windows_real_path
+from xv_leak_tools.path import windows_path_split, windows_real_path, windows_safe_path
 from xv_leak_tools.process import XVProcessException
 from xv_leak_tools.test_device.desktop_device import DesktopDevice
 from xv_leak_tools.test_device.connector_helper import ConnectorHelper
@@ -43,13 +45,18 @@ class WindowsDevice(DesktopDevice): # pylint: disable=no-self-use
         except XVProcessException as ex:
             raise XVEx("Couldn't determine Windows Version as systeminfo failed:\n{}".format(ex))
 
+    # TODO: I think all desktop devices share this, so derive instead.
+    @staticmethod
+    def local_ips():
+        ips = []
+        for iface in netifaces.interfaces():
+            if netifaces.AF_INET in netifaces.ifaddresses(iface):
+                ips.append(netifaces.ifaddresses(iface)[netifaces.AF_INET][0]['addr'])
+        return [ipaddress.ip_address(ip) for ip in ips]
+
     # TODO: Not sure this will either work at all or work on cygwin
     def open_app(self, app_path, root=False): # pylint: disable=unused-argument
-        # TODO: Oh dear god. This was painful!
-        # Note that this can fail in a bad way. If start fails then it will pop a dialog box and
-        # freeze everything. Need a better solution to this. Make sure paths are correct for now!
-        head, tail = windows_path_split(app_path)
-        cmd = ['cmd', '/C', 'start', '/D', "\"{}\"".format(windows_real_path(head)), tail]
+        cmd = ['run', "\"{}\"".format(windows_safe_path(app_path))]
         L.debug("Executing cmd '{}'".format(cmd))
         self._connector_helper.check_command(cmd)
 

@@ -47,7 +47,7 @@ class IPResponder(Component):
         try:
             self.query(timeout=1)
             L.info("IP Responder is up and running at {}:{}".format(*self._server_address))
-        except XVEx as _:
+        except XVEx:
             raise XVEx(
                 "IP responder server isn't running at {}:{}. Please make sure you start "
                 "it!".format(*self._server_address))
@@ -91,7 +91,7 @@ class IPResponder(Component):
         token = token or self._token
         try:
             self._sock.sendto(token, self._server_address)
-        except OSError as _:
+        except OSError:
             # Don't notify anyone about this. The use case of this class is to send a lot of traffic
             # so dropped packets don't matter. Indeed they are expected as some tests will cause the
             # network to drop.

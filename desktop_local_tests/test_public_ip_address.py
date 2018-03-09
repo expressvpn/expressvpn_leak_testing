@@ -1,4 +1,6 @@
+import time
 from xv_leak_tools.log import L
+from xv_leak_tools.helpers import TimeUp
 from desktop_local_tests.local_test_case import LocalTestCase
 
 # TODO: Rewrite this test to use PublicIPDuringDisruptionTestCase but when the disruption is
@@ -40,8 +42,21 @@ class TestPublicIPAddress(LocalTestCase):
         L.describe('Open and connect the VPN application')
         self.localhost['vpn_application'].open_and_connect()
 
+        self._check_network(20)
+
         L.describe('Get the public IP addresses after VPN connect')
         public_ips_after_connect = self.localhost['ip_tool'].all_public_ip_addresses()
+
+        timeout = TimeUp(20)
+        while not timeout:
+            public_ips_after_connect = self.localhost['ip_tool'].all_public_ip_addresses()
+            if public_ips_after_connect:
+                break
+            L.debug("Waiting {} s for a public IP address".format(int(timeout.time_left())))
+            time.sleep(4)
+
+        self.assertNotEmpty(public_ips_after_connect,
+                            "Couldn't get public IP addresses after connecting to the VPN server")
 
         L.info("Public IP addresses after VPN connect are {}".format(public_ips_after_connect))
 

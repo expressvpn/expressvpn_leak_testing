@@ -24,11 +24,16 @@ from xv_leak_tools.test_execution.test_run_context import TestRunContext
 from xv_leak_tools.test_execution.test_runner import TestRunner
 from xv_leak_tools.network.macos.pf_firewall import PFCtl
 
-def punch_hole_in_firewall(pf, ip):
-    if current_os() != 'macos':
+def punch_hole_in_firewall(ips):
+    if current_os() == 'macos':
+        pf = PFCtl()
+        ip_list = '{ ' + ', '.join(ips) + ' }'
+        pf.set_rules(["pass in quick from {} no state".format(ip_list),
+                      "pass out quick to {} no state".format(ip_list)])
+    elif current_os() == 'windows':
+        L.warning("Ignoring option to open up firewall for {} on Windows".format(', '.join(ips)))
+    else:
         raise XVEx('Editing the firewall is only supported for PF/macOS')
-    pf.set_rules(["pass in quick from {} no state".format(ip),
-                  "pass out quick to {} no state".format(ip)])
 
 def filter_tests(tests, regex):
     filtered_tests = []
@@ -128,11 +133,9 @@ def main(argv=None):
     makedirs_safe(args.output_directory)
 
     if args.firewall_exemption:
-        pf = PFCtl()
         ips = [ipaddress.ip_network(ip).exploded for ip in args.firewall_exemption]
-        ip_list = '{ ' + ', '.join(ips) + ' }'
-        L.info("Punching hole for {}".format(ips))
-        punch_hole_in_firewall(pf, ip_list)
+        L.info("Punching hole for {}".format(', '.join(ips)))
+        punch_hole_in_firewall(ips)
 
     context_dict = import_by_filename(args.context).CONTEXT
     cmd_line_overrides = [

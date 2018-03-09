@@ -5,3 +5,5 @@ output
 *.pyc
 no_git
 *.swp
+*.pid
+*.log

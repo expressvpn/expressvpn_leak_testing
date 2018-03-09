@@ -9,8 +9,7 @@ class WindowsEnableNewAdapterDisrupter(Disrupter):
         self._primary_adapter = self._find_primary_adapter()
 
     def _find_primary_adapter(self):
-        adapters = self._device['network_tool'].adapters_in_priority_order()
-        primary_adapter = [adapter for adapter in adapters if adapter.pingable()][0]
+        primary_adapter = self._device['network_tool'].primary_adapter()
         L.info("Primary network adapter is {}".format(primary_adapter.name()))
         return primary_adapter
 

@@ -1,7 +1,7 @@
 These docs details how to fully setup a Mac, Linux or Windows machine so that it can run the leak
 test tools.
 
-Note that mobile devices currently don't need this setup as they can't run the python test suite.
+Note that mobile devices currently don't need this setup as they can't run the Python test suite.
 
 Test device setup can be simplified by using the provided ansible scripts. See TODO for how to use
 ansible for setup. The result of following the steps below or using ansible is the same.
@@ -18,7 +18,7 @@ into. The user has passwordless `sudo` in order to simplify privilege escalation
 tests.
 
 > On Windows we assume that we're always running as an administrator. Due to the differences in
-  permission models between posix system this is just the simplest approach.
+  permission models between Windows and POSIX systems, this is just the simplest approach.
 
 It's not essential that you create such a user but it's recommended that you follow a similar
 approach.

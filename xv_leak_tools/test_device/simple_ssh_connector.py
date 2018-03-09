@@ -27,6 +27,7 @@ class SimpleSSHConnector(Connector):
         self._ssh_password = ssh_password.encode('utf-8') if ssh_password else None
         self._ssh_client = None
         self._sftp_client = None
+        self._target_platform = None
         self._routes_to_remote = []
 
     def __del__(self):
@@ -37,6 +38,18 @@ class SimpleSSHConnector(Connector):
             return
 
         self._ssh_connect()
+
+    def _platform(self):
+        if self._target_platform:
+            return self._target_platform
+        output = self.execute(['uname'])
+        if output[0] != 0:
+            raise XVEx("Failed to check target platform")
+        if 'cygwin' in output[1].lower():
+            self._target_platform = 'cygwin'
+        else:
+            self._target_platform = 'unix'
+        return self._target_platform
 
     def _remove_routes(self):
         for route in self._routes_to_remote:
@@ -155,7 +168,7 @@ class SimpleSSHConnector(Connector):
     def execute(self, cmd, root=False):
         self._ensure_connected()
 
-        if root and self._username.decode() != 'root':
+        if root and self._username.decode() != 'root' and self._platform() != 'cygwin':
             cmd = ['sudo', '-n'] + cmd
 
         cmd = ["[", "-f", ".source", "]", "&&", ".", ".source;"] + cmd

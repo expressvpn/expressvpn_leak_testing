@@ -3,7 +3,9 @@
 > We currently only support cygwin as the shell which the test suite can run in. Support for DOS
   or other shells may be considered later on.
 
-On windows you need to make several executables available to the leak tools. Currently the best way
+> The tests are designed to run on x86-64. If you're running a 32-bit OS, see [Troubleshooting](#troubleshooting) below.
+
+On Windows you need to make several executables available to the leak tools. Currently the best way
 of doing this is to create a folder somewhere and add it to the `PATH` environment variable for your
 user. Then just dump binaries into this folder as needed. We refer to this as `EXTRA_BIN_PATH` from
 here on in.
@@ -14,9 +16,9 @@ Examples include Windump.exe, chromedriver.exe. These are standalone binaries wi
 
 ## Setup Cygwin
 
-* Install Cygwin as per the instructions here: http://www.cygwin.com/install.html
-** Ensure you install `lynx` web client package
-* Install `apt-cyg` (as per the instruction here: https://github.com/transcode-open/apt-cyg):
+* Install Cygwin as per the instructions in https://www.cygwin.com/install.html.
+  * Ensure you install `lynx` web client package.
+* Install `apt-cyg` (as per the instruction in https://github.com/transcode-open/apt-cyg):
 ```
 lynx -source rawgit.com/transcode-open/apt-cyg/master/apt-cyg > apt-cyg
 install apt-cyg /bin
@@ -29,9 +31,9 @@ apt-cyg install git python3 python3-devel libffi-devel openssl-devel make bind-u
 ```
 apt-cyg install procps-ng vim
 ```
-> `procps-ng` gives you `watch` which can be useful
+> `procps-ng` gives you `watch` which can be useful.
 
-## Checkout xv\_leak\_tools\_internal
+## Checkout
 
 Simply `git clone` this repo to a location of your choice. We'll refer to the `python` subfolder in
 that location as `$LEAK_TOOLS_ROOT`.
@@ -45,38 +47,45 @@ Optional for now. Only require if you want to run the tests remotely on the Wind
 ## Setup python
 
 Run `./setup_python.sh $VIRTUALENV_LOCATION` where `$VIRTUALENV_LOCATION` is the directory
-where you want the virtualenv to be created, e.g.
+that you want the virtualenv to be created in, e.g.
 
 ```
 ./setup_python.sh ~/xv_leak_testing_python
 ```
+> TROUBLESHOOTING: If the error `Failed building wheel for ...` occurs, 
+  * reboot and ensure there are no cygwin processes running;
+  * run `C:\cygwin64\bin\ash` as an administrator;
+  * run `/bin/rebaseall`.
+  If the issue persists, rebase again and reinstall Python from the cygwin executable.
 
 You can now source the `activate` script as a shortcut to activating `virtualenv` with this version
-of python.
+of Python.
+
+## Configure `EXTRA_BIN_PATH`
+
+Make a directory wherever you like and add it to your `PATH` (e.g. `C:\Program Files (x86)\xv_leak_test`). 
+To add directories to the `PATH`, open `Control Panel` > `System` > `Advanced system settings` > 
+`Environment Variables…` > `PATH`.
 
 ## Install capture tools
 
-Install libpcap from here: https://www.winpcap.org/
+Install winpcap from https://www.winpcap.org/.
 
-Download Windump from here: https://www.winpcap.org/windump/ and copy it into `EXTRA_BIN_PATH`.
+Download Windump from https://www.winpcap.org/windump/ and copy it into `$EXTRA_BIN_PATH`.
 
 ## Install helper tools
 
 Download pre-built binaries of https://github.com/alirdn/windows-kill or build them yourselves. Then
-copy the binaries into `EXTRA_BIN_PATH`.
+copy the binaries into `$EXTRA_BIN_PATH`.
 
 ## (Optional) Setup cmder
 
-> WARNING: cmder isn't a great idea just yet. There's a problem with running `xv_toolbox` commands
-  automatically with cmder. It causes execution to halt due to a shell window not closing. Just
-  use cygwin for now and ignore cmder.
+cmder is probably the best shell on Windows. It can easily be configured to use the cygwin
+environment and thus act as a shell wrapper around cygwin.
 
-We recommend cmder as the best shell on Windows. This can easily be configured to use the cygwin
-environment and thus acts as a shell wrapper around cygwin.
+Setup instructions for cmder can be found at http://cmder.net/.
 
-Setup instructions for cmder can be found here: http://cmder.net/.
-
-For details on how to integrate cmder with cygwin see here:
+For details on how to integrate cmder with cygwin, see
 https://github.com/cmderdev/cmder/wiki/%5BWindows%5D-Integrating-Cygwin.
 
 > Note that a missing step in that setup guide is to go to "Startup" and set your newly created task
@@ -105,7 +114,15 @@ Opera driver: https://github.com/operasoftware/operachromiumdriver/releases
 
 ## Install Torrent Clients
 
-You can choose which torrent clients you want to test. We have tested
+You can choose which torrent clients you want to test. We have tested:
 
-* Transmission
-* uTorrent
+* Transmission,
+* uTorrent.
+
+## Troubleshooting
+
+### `Subprocess execution failed: cmd: ['run', '"/cygdrive/c/Program Files (x86)/ExpressVPN/xvpn-ui/ExpressVpn.exe"']`
+
+This occurs when the test machine is a 32-bit Windows OS. The solution is to create `C:/Program Files (x86)/` 
+and symlink the ExpressVPN directory into it with 
+`mklink /J "C:\Program Files (x86)\ExpressVPN" "C:\Program Files\ExpressVPN"` (not in a cygwin shell).

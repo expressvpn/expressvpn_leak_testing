@@ -1,48 +1,48 @@
 # Quick Start
 
 We only focus on "single machine tests" in the Quick Start guide. That is, tests which can run
-entirely on your local device. Some more advanced tests cases require multiple machines networked
+entirely on your local device. Some more advanced test cases require multiple machines networked
 together, e.g. a mobile device, a router device, a port spanning switch and a desktop device for
-collection spanned traffic.
+collecting spanned traffic.
 
 See TODO for more details on multi-machine tests
 
-The test suite must always be run from a desktop device. We refer to this device as the "Test
-Orchestrator". For single machine tests, the Test Orchestrator is actually the device under test.
+The test suite must always be run from a desktop device. We refer to this device as the "test
+orchestrator". For single machine tests, the test orchestrator is actually the device under test.
 
 ## Decide whether you want to work with a VM
 
 VMs provide more flexibility with regards to network configurations. It's much easier to configure
-multiple adapters, capture traffic from the guest, firewall the guests network. For the purpose
+multiple adapters, capture traffic from the guest and firewall the guest's network. For the purpose
 of a "quick start" you should only need a VM if:
 
-* You can't provide a local DNS server to your device
-  * Some test cases require a local DNS server
-  * You can fail to have one if, for example, your network is specifying public DNS servers via
-    DHCP, e.g. 8.8.8.8.
-  * Using a NAT'd network adapter for the VM guest will give you a local DNS server.
+* you can't provide a local DNS server to your device:
+  * some test cases require a local DNS server,
+  * you can fail to have one if, for example, your network is specifying public DNS servers via
+    DHCP, e.g. 8.8.8.8,
+  * using a NAT'd network adapter for the VM guest will give you a local DNS server.
 
 ## Setup Your Machine
 
-First follow [Setting Up Test Machines](docs/setting_up_test_machines.md) for you machine of
-choice. We recommend using MacOS for quick start.
+First follow [Setting Up Test Machines](setting_up_test_machines.md) for you machine of
+choice. We recommend using macOS for a quick start.
 
 ## Run Some Tests
 
-To run a bunch of tests do the following
+To run a bunch of tests, do the following:
 
-* Pick a config file (`$CONFIG_FILE`)
-  * We recommend starting with `configs/auto/template_desktop_generic_tests_localhost.py`.
-* Create an output directory somewhere (`$OUTPUT`).
-* Open a shell and execute:
-  * `./run_tests.sh -o $OUTPUT -c $CONFIG_FILE`
+* pick a config file (`$CONFIG_FILE`),
+  * we recommend starting with `configs/auto/template_desktop_generic_tests_localhost.py`,
+* create an output directory somewhere (`$OUTPUT`),
+* open a shell and execute:
+  * `./run_tests.sh -o $OUTPUT -c $CONFIG_FILE`.
 
 All tests currently require root (or admin) to run. The suite is designed to facilitate running
-non-root tests, however currently most tests require root is some way or other. The suite will
+non-root tests, however currently most tests require root in some way or another. The suite will
 ask you for root permission when it needs it.
 
 > You should ensure that none of the test suite files are owned by root. You should never need to be
-  in a root shell at any time. Just rely on the tests asking you for root when they need it.
+  in a root shell at any time; just rely on the tests asking you for root when they need it.
 
 The test framework will output lots of information to the console. The default log level is INFO and
 should be sufficient for quick start. However, if you wish to up the level then use the `-l`
@@ -73,26 +73,26 @@ failed.
 
 We discuss test execution in detail in TODO.
 
-## Structure of Test Suite
+## Structure of the Test Suite
 
 Everything here is covered in full detail in [Test Suite Overview](test_suite_overview.md).
 
 ### Test Cases
 
 This repo contains many test cases. They can mostly be found in the `desktop_local_tests` folder.
-A test case is any python class which
+A test case is any Python class which:
 
-* Derives from `TestCase`
-* Whose name begins with `Test`
+* derives from `TestCase`,
+* whose name begins with `Test`.
 
 > Test classes must have unique names - you will get an error if they don't.
 
 A test case requires a configuration to run. The configuration specifies:
 
-* What devices the test will use to run
-* The configuration of the device
-* Parameters for the test
-  * Some tests can execute in different ways when different parameters are passed.
+* what devices the test will use to run,
+* the configuration of the device,
+* parameters for the test,
+  * some tests can execute in different ways when different parameters are passed.
 
 Configurations are passed to the test suite via the `-c` argument to `run_tests.sh`. The value of
 this argument should be a python file which exposes an attribute `TESTS` - which should be a list
@@ -101,7 +101,7 @@ of dictionaries.
 Each dictionary is a configuration for a specific test. It tells the test suite to run that test
 once with the particular settings.
 
-> Tests can live in any folder. Extra folders can be specified via the `Test Run Context`. See
+> Tests can live in any folder. Extra folders can be specified via the `TestRunContext`. See
   TODO for more information.
 
 ### Test Configs
@@ -133,14 +133,14 @@ We discuss devices in detail in TODO.
 
 All test suite code is under the `xv_leak_tools` folder.
 
-Test execution begins with `xv_leak_tools/test_execution/test_runner.py`. Test execution requires a
-`TestRunContext` object which is used to parameterize the test framework itself. The wrapper script
-`/tools/run_tests.py` will process command line arguments and ensure that the test suite is passed:
+Test execution requires a `TestRunContext` object which is used to parameterize the test framework
+itself. The wrapper script `/tools/run_tests.py` will process command line arguments and ensure
+that the test suite is passed:
 
-* A test output directory
-* A test run context
-* A list of test configs
-* A device inventory
+* a test output directory,
+* a test run context,
+* a list of test configs,
+* a device inventory.
 
 The real entry point for the test suite is in `xv_leak_tools/test_execution/test_runner.py`, which
 receives the above objects from `run_tests.py`.
@@ -149,23 +149,23 @@ receives the above objects from `run_tests.py`.
   used to run `/tools/run_tests.py`. This is just a helper script to ensure the suite can be
   run in a platform agnostic way.
 
-When the test suite runs, it roughly does the following
+When the test suite runs, it roughly does the following:
 
-* Discovers all available test cases (classes deriving from `TestCase`)
-* Iterating through each test configuration
-* Create an instance of the test case class for the test
-* Finds the devices specified in the test config but looking through the device inventory
-* Creates "connections" - roughly speaking, SSH connections - to all devices
-* Runs the tests, including
-    * Setup and teardown
-    * Handling success/failure
-    * Handling exceptions.
+* discovers all available test cases (classes deriving from `TestCase`),
+* iterating through each test configuration,
+* create an instance of the test case class for the test,
+* finds the devices specified in the test config but looking through the device inventory,
+* creates "connections" - roughly speaking, SSH connections - to all devices,
+* runs the tests, including:
+    * setup and teardown,
+    * handling success/failure,
+    * handling exceptions.
 
 The test runner will tell you what went wrong and summarise failures. It's similar to most unit
-testing frameworks but tailored to leak testing.
+testing frameworks, but tailored to leak testing.
 
 ### Where to go next?
 
-* Learn about the current test cases: TODO
-* Learn about building your own configurations: TODO
-* Learn about creating device inventories: TODO
+* Learn about the current test cases: TODO.
+* Learn about building your own configurations: TODO.
+* Learn about creating device inventories: TODO.
