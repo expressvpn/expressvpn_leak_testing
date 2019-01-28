@@ -1,13 +1,8 @@
 # ExpressVPN Leak Testing Tools
 
-This repository contains tools built by ExpressVPN for testing how leak-proof our applications
-are. The test suite is currently a work in progress and should be considered in **alpha** state.
+This repository contains tools built by ExpressVPN for testing how leak-proof our applications are.
 
-## Note to alpha users
-
-These tools are currently in alpha. We encourage users to independently validate the integrity of
-any tests. Test results are for guidance only and should be interpreted by professional software
-developers and networking engineers.
+We encourage users to independently validate the integrity of any tests. Test results are for guidance only and should be interpreted by professional software developers and networking engineers.
 
 # Quick Links
 
