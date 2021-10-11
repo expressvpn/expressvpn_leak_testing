@@ -52,7 +52,7 @@ that you want the virtualenv to be created in, e.g.
 ```
 ./setup_python.sh ~/xv_leak_testing_python
 ```
-> TROUBLESHOOTING: If the error `Failed building wheel for ...` occurs, 
+> TROUBLESHOOTING: If the error `Failed building wheel for ...` occurs,
   * reboot and ensure there are no cygwin processes running;
   * run `C:\cygwin64\bin\ash` as an administrator;
   * run `/bin/rebaseall`.
@@ -63,8 +63,8 @@ of Python.
 
 ## Configure `EXTRA_BIN_PATH`
 
-Make a directory wherever you like and add it to your `PATH` (e.g. `C:\Program Files (x86)\xv_leak_test`). 
-To add directories to the `PATH`, open `Control Panel` > `System` > `Advanced system settings` > 
+Make a directory wherever you like and add it to your `PATH` (e.g. `C:\Program Files (x86)\xv_leak_test`).
+To add directories to the `PATH`, open `Control Panel` > `System` > `Advanced system settings` >
 `Environment Variables…` > `PATH`.
 
 ## Install capture tools
@@ -75,8 +75,14 @@ Download Windump from https://www.winpcap.org/windump/ and copy it into `$EXTRA_
 
 ## Install helper tools
 
-Download pre-built binaries of https://github.com/alirdn/windows-kill or build them yourselves. Then
-copy the binaries into `$EXTRA_BIN_PATH`.
+> ❗️WARNING: These tools were previously dependent on a 3rd party application called `windows-kill`.
+  The GitHub repo for that tool has recently been taken over. We have removed the link to the repo
+  as a security precaution. If you wish to run the tools on Windows then, as of the time of writing,
+  you will either need to find an alternative distribution of the source/binaries for this tool or
+  find a suitable replacement.
+
+Download pre-built binaries of `windows-kill` or build them yourselves. Then copy the binaries into
+`$EXTRA_BIN_PATH`.
 
 ## (Optional) Setup cmder
 
@@ -123,6 +129,6 @@ You can choose which torrent clients you want to test. We have tested:
 
 ### `Subprocess execution failed: cmd: ['run', '"/cygdrive/c/Program Files (x86)/ExpressVPN/xvpn-ui/ExpressVpn.exe"']`
 
-This occurs when the test machine is a 32-bit Windows OS. The solution is to create `C:/Program Files (x86)/` 
-and symlink the ExpressVPN directory into it with 
+This occurs when the test machine is a 32-bit Windows OS. The solution is to create `C:/Program Files (x86)/`
+and symlink the ExpressVPN directory into it with
 `mklink /J "C:\Program Files (x86)\ExpressVPN" "C:\Program Files\ExpressVPN"` (not in a cygwin shell).
